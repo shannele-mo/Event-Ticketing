@@ -79,4 +79,18 @@ module Types {
     owner : Principal;
     subaccount : ?[Nat8];
   };
+
+  public type Error = {
+    #NotFound;
+    #Unauthorized;
+    #InvalidInput : Text;
+  };
+
+  public type VerificationResult = {
+    #Valid : { ticket : Ticket; event : Event };
+    #Invalid : Text;
+    #AlreadyUsed : { usedAt : Time.Time };
+    #EventNotStarted;
+    #EventCancelled;
+  };
 };
