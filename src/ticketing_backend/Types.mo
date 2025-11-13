@@ -93,4 +93,20 @@ module Types {
     #EventNotStarted;
     #EventCancelled;
   };
+
+  // Statistics types
+  public type EventStats = {
+    eventId : Nat;
+    totalRevenue : Nat;
+    ticketsSold : Nat;
+    ticketsUsed : Nat;
+    uniqueBuyers : Nat;
+  };
+
+  public type SystemStats = {
+    totalEvents : Nat;
+    totalTicketsSold : Nat;
+    totalRevenue : Nat;
+    activeEvents : Nat;
+  };
 };
