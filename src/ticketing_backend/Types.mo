@@ -45,4 +45,38 @@ module Types {
     #Cancelled;
     #Completed;
   };
+
+  // Function argument types
+  public type CreateEventArgs = {
+    name : Text;
+    description : Text;
+    venue : Text;
+    date : Time.Time;
+    totalTickets : Nat;
+    pricePerTicket : Nat;
+    imageUrl : ?Text;
+    category : ?Text;
+    metadata : ?[(Text, Text)];
+  };
+
+  public type TicketPurchase = {
+    eventId : Nat;
+    quantity : Nat;
+    totalPrice : Nat;
+    buyerAccount : Account;
+  };
+
+  // Function result types
+  public type PurchaseResult = {
+    #Success : { tickets : [Ticket]; transactionId : Nat };
+    #EventSoldOut;
+    #EventCancelled;
+    #InvalidQuantity;
+    #PaymentFailed : Text;
+  };
+
+  public type Account = {
+    owner : Principal;
+    subaccount : ?[Nat8];
+  };
 };
