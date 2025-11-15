@@ -1,24 +1,54 @@
 {
   "canisters": {
     "ticketing_backend": {
-      "main": "src/ticketing_backend/main.mo",
-      "type": "motoko"
+      "main": "src/ticketing_backend/Main.mo",
+      "type": "motoko",
+      "dependencies": ["icrc1_ledger_canister"]
+    },
+    "icrc1_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/main/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/main/canisters/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
+    },
+    "icrc1_index_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/main/rs/rosetta-api/icrc1/index/index.did",
+      "wasm": "https://download.dfinity.systems/ic/main/canisters/ic-icrc1-index-ng.wasm.gz"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "shrink": false,
+      "frontend": {
+        "entrypoint": "src/internet_identity/index.html"
+      },
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
     },
     "ticketing_frontend": {
       "dependencies": [
-        "ticketing_backend"
+        "ticketing_backend",
+        "internet_identity"
       ],
+      "frontend": {
+        "entrypoint": "src/ticketing_frontend/src/index.html"
+      },
       "source": [
-        "src/ticketing_frontend/dist"
+        "src/ticketing_frontend/assets",
+        "dist/ticketing_frontend/"
       ],
-      "type": "assets",
-      "workspace": "ticketing_frontend"
+      "type": "assets"
     }
   },
   "defaults": {
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "output_env_file": ".env",
