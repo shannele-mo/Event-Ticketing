@@ -24,12 +24,14 @@ shared(init_msg) actor class TicketingSystem(ledgerCanisterId : Principal) = thi
   private stable var stableTickets : [(Nat, Types.Ticket)] = [];
   private stable var stableUserTickets : [(Principal, [Nat])] = [];
   private stable var stableEventRevenue : [(Nat, Nat)] = [];
+  private stable var stableRefundedTickets : [(Nat, Types.Ticket)] = [];
   
   // Runtime state
   private var events = HashMap.HashMap<Nat, Types.Event>(10, Nat.equal, Hash.hash);
   private var tickets = HashMap.HashMap<Nat, Types.Ticket>(100, Nat.equal, Hash.hash);
   private var userTickets = HashMap.HashMap<Principal, Buffer.Buffer<Nat>>(10, Principal.equal, Principal.hash);
   private var eventRevenue = HashMap.HashMap<Nat, Nat>(10, Nat.equal, Hash.hash);
+  private var refundedTickets = HashMap.HashMap<Nat, Types.Ticket>(100, Nat.equal, Hash.hash);
   
   // Constants
   private let TRANSFER_FEE : Nat = 10; // ckBTC transfer fee in e8s
@@ -54,6 +56,7 @@ shared(init_msg) actor class TicketingSystem(ledgerCanisterId : Principal) = thi
       )
     );
     stableEventRevenue := Iter.toArray(eventRevenue.entries());
+    stableRefundedTickets := Iter.toArray(refundedTickets.entries());
   };
 
   system func postupgrade() {
@@ -73,10 +76,14 @@ shared(init_msg) actor class TicketingSystem(ledgerCanisterId : Principal) = thi
     for ((id, revenue) in stableEventRevenue.vals()) {
       eventRevenue.put(id, revenue);
     };
+    for ((id, ticket) in stableRefundedTickets.vals()) {
+      refundedTickets.put(id, ticket);
+    };
     stableEvents := [];
     stableTickets := [];
     stableUserTickets := [];
     stableEventRevenue := [];
+    stableRefundedTickets := [];
   };
 
   // Helper functions
@@ -270,7 +277,7 @@ shared(init_msg) actor class TicketingSystem(ledgerCanisterId : Principal) = thi
       return #Invalid("Event not found");
     };
 
-    if (event.status == #Cancelled) {
+    if (event.status == #Cancelled) {.
       return #EventCancelled;
     };
 
@@ -342,7 +349,37 @@ shared(init_msg) actor class TicketingSystem(ledgerCanisterId : Principal) = thi
     let updatedEvent = { event with status = #Cancelled };
     events.put(eventId, updatedEvent);
 
-    // TODO: Implement refund logic for ticket holders
+    // Refund logic for ticket holders
+    for ((ticketId, ticket) in tickets.entries()) {
+      if (ticket.eventId == eventId) {
+        // Transfer funds back to the ticket owner
+        let refundTransferArgs : Types.TransferArgs = {
+          from_subaccount = null;
+          to = { owner = ticket.owner; subaccount = null };
+          amount = ticket.price;
+          fee = ?TRANSFER_FEE;
+          memo = ?Text.encodeUtf8("Refund for cancelled event: " # event.name);
+          created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+        };
+
+        ignore await Ledger.icrc1_transfer(refundTransferArgs);
+
+        // Mark ticket as refunded
+        let refundedTicket = { ticket with transferrable = false };
+        refundedTickets.put(ticketId, refundedTicket);
+        tickets.delete(ticketId);
+
+        // Remove ticket from user's list
+        let userBuffer = getUserTicketBuffer(ticket.owner);
+        let newUserTickets = Buffer.Buffer<Nat>(userBuffer.size());
+        for (id in userBuffer.vals()) {
+          if (id != ticketId) {
+            newUserTickets.add(id);
+          };
+        };
+        userTickets.put(ticket.owner, newUserTickets);
+      };
+    };
 
     #ok(())
   };
