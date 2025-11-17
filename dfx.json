@@ -7,14 +7,14 @@
     },
     "icrc1_ledger_canister": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/main/rs/rosetta-api/icrc1/ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/main/canisters/ic-icrc1-ledger.wasm.gz",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-09-01/ic-icrc1-ledger.wasm.gz",
       "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
     },
     "icrc1_index_canister": {
       "type": "custom",
       "candid": "https://raw.githubusercontent.com/dfinity/ic/main/rs/rosetta-api/icrc1/index/index.did",
-      "wasm": "https://download.dfinity.systems/ic/main/canisters/ic-icrc1-index-ng.wasm.gz"
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-09-01/ic-icrc1-index-ng.wasm.gz"
     },
     "internet_identity": {
       "type": "custom",

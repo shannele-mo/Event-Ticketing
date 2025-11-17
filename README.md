@@ -1,5 +1,5 @@
 # 🎫 Event Ticketing System with ckBTC
-
+Encode club | Oxford University
 A fully decentralized event ticketing platform built on the Internet Computer that uses ckBTC (chain-key Bitcoin) for ticket purchases. This system eliminates scalping bots, provides instant verification, and ensures transparent, tamper-proof ticket ownership.
 
 ## 🌟 Features
